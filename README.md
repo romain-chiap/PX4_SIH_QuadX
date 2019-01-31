@@ -13,7 +13,7 @@ The SIH can be used by new PX4 users to get familiar with PX4 and the different 
 Coriolis g Corporation is a Canadian company specialized in Vertical Takeoff and Landing (VTOL) Unmanned Aerial Vehicles (UAV). 
 
 The company is focusing on devloping a new type of VTOL aircraft using a passive coupling system.
-We are specialized in dynamics and control and real time simulation.
+We are specialized in dynamics and control and real time simulation. The SIH is a simple simulator for quadrotors realeased for free and without any conditions.
 
 Discover our current platform at www.vogi-vtol.com
 
