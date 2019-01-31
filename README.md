@@ -12,7 +12,8 @@ The SIH provides two benefits over the HITL:
 The SIH can be used by new PX4 users to get familiar with PX4 and the different modes and features, and of course to learn to fly a quadrotor with the real Radio.
 
 ## User manual and documentation
-For information on seting up the Coriolis SIH, visit the [wiki page](https://github.com/romain-chiap/PX4_SIH_QuadX/wiki)
+For information on seting up the Coriolis SIH, visit this [wiki page](https://github.com/romain-chiap/PX4_SIH_QuadX/wiki/Setting-up-the-Coriolis-SIH)
+
 For additional documentation, check the [Documentation](https://github.com/romain-chiap/PX4_SIH_QuadX/tree/master/Documentation) folder.
 
 ## About us
