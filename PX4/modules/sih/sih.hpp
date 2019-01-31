@@ -93,6 +93,8 @@ private:
 	void parameters_update_poll(int parameter_update_sub);
 	void parameters_updated();
 
+	uint8_t is_HIL_running(int vehicle_status_sub);
+
 	// to publish the simulator states
 	struct sih_s 					sih{};
 	orb_advert_t    				sih_pub{nullptr}; 
@@ -114,7 +116,6 @@ private:
 
 	// hard constants
 	static constexpr uint16_t NB_MOTORS=4;
-	static constexpr float SQRT_2_O_2=sqrtf(2.0f)/2.0f; // root 2 over 2
 	static constexpr float T1 = 15.0f - CONSTANTS_ABSOLUTE_NULL_CELSIUS;	// ground temperature in Kelvin
 	static constexpr float a  = -6.5f / 1000.0f;	// temperature gradient in degrees per metre 
 
@@ -135,6 +136,7 @@ private:
 	Vector3f T_B; 		// thrust force in body frame [N]
 	Vector3f Fa_I; 		// aerodynamic force in inertial frame [N]
 	Vector3f Mt_B; 		// thruster moments in the body frame [Nm]
+	Vector3f Ma_B; 		// aerodynamic moments in the body frame [Nm]
 	Vector3f p_I; 		// inertial position [m]
 	Vector3f v_I; 		// inertial velocity [m/s]
 	Vector3f v_B; 		// body frame velocity [m/s]	
@@ -159,7 +161,7 @@ private:
 	float baro_temp_c; 						// reconstructed barometer temperature in celcius
 
 	// parameters
-	float MASS, T_MAX, Q_MAX, L, KDV, KDW, H0;
+	float MASS, T_MAX, Q_MAX, L_ROLL, L_PITCH, KDV, KDW, H0;
 	double LAT0, LON0, COS_LAT0;
 	Vector3f _W_I; 	// weight of the vehicle in inertial frame [N]	
 	Matrix3f _I; 	// vehicle inertia matrix
@@ -177,14 +179,15 @@ private:
 		(ParamFloat<px4::params::SIH_IYZ>) _sih_iyz, 
 		(ParamFloat<px4::params::SIH_T_MAX>) _sih_t_max, 
 		(ParamFloat<px4::params::SIH_Q_MAX>) _sih_q_max, 
-		(ParamFloat<px4::params::SIH_ARM_LENGTH>) _sih_arm_length, 
+		(ParamFloat<px4::params::SIH_L_ROLL>) _sih_l_roll,
+		(ParamFloat<px4::params::SIH_L_PITCH>) _sih_l_pitch, 
 		(ParamFloat<px4::params::SIH_KDV>) _sih_kdv, 
+		(ParamFloat<px4::params::SIH_KDW>) _sih_kdw,
 		(ParamInt<px4::params::SIH_LAT0>) _sih_lat0, 
 		(ParamInt<px4::params::SIH_LON0>) _sih_lon0, 
 		(ParamFloat<px4::params::SIH_H0>) _sih_h0, 
 		(ParamFloat<px4::params::SIH_MU_X>) _sih_mu_x, 
 		(ParamFloat<px4::params::SIH_MU_Y>) _sih_mu_y, 
-		(ParamFloat<px4::params::SIH_MU_Z>) _sih_mu_z,
-		(ParamFloat<px4::params::SIH_KDW>) _sih_kdw
+		(ParamFloat<px4::params::SIH_MU_Z>) _sih_mu_z
 	)
 };

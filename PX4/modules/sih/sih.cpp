@@ -46,8 +46,8 @@
 #include <px4_log.h>
 #include <px4_posix.h>
 
-#include <drivers/drv_pwm_output.h>	// to get PWM flags
-// #include <drivers/drv_sensor.h> 	// to get sensors address
+#include <drivers/drv_pwm_output.h>			// to get PWM flags
+#include <uORB/topics/vehicle_status.h> 	// to get the HIL status
 
 #include <unistd.h> 			//
 #include <string.h>    			//
@@ -192,6 +192,8 @@ void Sih::run()
 	// to subscribe to (read) the actuators_out pwm
 	int actuator_out_sub = orb_subscribe(ORB_ID(actuator_outputs));
 
+	int vehicle_status_sub = orb_subscribe(ORB_ID(vehicle_status));
+
 	// initialize parameters
 	int parameter_update_sub = orb_subscribe(ORB_ID(parameter_update));
 	parameters_update_poll(parameter_update_sub);
@@ -208,7 +210,7 @@ void Sih::run()
 	hrt_abstime serial_time = task_start;
 	hrt_abstime now;
 
-	while (!should_exit()) {
+	while (!should_exit() && is_HIL_running(vehicle_status_sub)) {
 
 		now = hrt_absolute_time();
 		dt = (now - last_run) * 1e-6f;
@@ -252,7 +254,8 @@ void Sih::run()
 	}
 
 	orb_unsubscribe(actuator_out_sub);
-	orb_unsubscribe(parameter_update_sub);
+	orb_unsubscribe(parameter_update_sub); 
+	orb_unsubscribe(vehicle_status_sub);
 	close(serial_fd);
 	
 }
@@ -271,13 +274,30 @@ void Sih::parameters_update_poll(int parameter_update_sub)
 	}
 }
 
+uint8_t Sih::is_HIL_running(int vehicle_status_sub)
+{
+	bool updated;
+	struct vehicle_status_s vehicle_status;
+	static uint8_t running=false;
+
+	orb_check(vehicle_status_sub, &updated);
+
+	if (updated) {
+		orb_copy(ORB_ID(vehicle_status), vehicle_status_sub, &vehicle_status);
+		running=vehicle_status.hil_state;
+	}	
+
+	return running;
+}
+
 // store the parameters in a more convenient form
 void Sih::parameters_updated()
 {
 
 	T_MAX = _sih_t_max.get();
 	Q_MAX = _sih_q_max.get();
-	L = _sih_arm_length.get();
+	L_ROLL = _sih_l_roll.get();
+	L_PITCH = _sih_l_pitch.get();
 	KDV = _sih_kdv.get();
 	KDW = _sih_kdw.get();
 	H0 = _sih_h0.get();
@@ -393,12 +413,12 @@ void Sih::read_motors(const int actuator_out_sub)
 void Sih::generate_force_and_torques()
 {
 	T_B=Vector3f(0.0f,0.0f, -T_MAX * (+u[0]+u[1]+u[2]+u[3]));
-	Mt_B=Vector3f(	L*SQRT_2_O_2*T_MAX*(-u[0]+u[1]+u[2]-u[3]),
-							L*SQRT_2_O_2*T_MAX*(+u[0]-u[1]+u[2]-u[3]),
+	Mt_B=Vector3f(	L_ROLL*T_MAX*(-u[0]+u[1]+u[2]-u[3]),
+							L_PITCH*T_MAX*(+u[0]-u[1]+u[2]-u[3]),
 									   Q_MAX * (+u[0]+u[1]-u[2]-u[3]));
 
 	Fa_I=-KDV*v_I; 		// first order drag to slow down the aircraft
-	Mt_B=Mt_B-KDW*w_B; 	// angular damper
+	Ma_B=-KDW*w_B; 		// first order angular damper
 }
 
 // apply the equations of motion of a rigid body and integrate one step
@@ -410,7 +430,7 @@ void Sih::equations_of_motion()
 	p_I_dot=v_I; 							// position differential
 	v_I_dot=(_W_I+Fa_I+C_IB*T_B)/MASS; 			// conservation of linear momentum
 	q_dot=q.derivative1(w_B); 				// attitude differential
-	w_B_dot=_Im1*(Mt_B-w_B.cross(_I*w_B));	// conservation of angular momentum
+	w_B_dot=_Im1*(Mt_B+Ma_B-w_B.cross(_I*w_B));	// conservation of angular momentum
 
 	// fake ground, avoid free fall
 	if(p_I(2)>0.0f && v_I_dot(2)>0.0f)

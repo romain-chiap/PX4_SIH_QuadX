@@ -61,9 +61,13 @@ PARAM_DEFINE_FLOAT(SIH_T_MAX, 5.0f);
 // maximum torque of one propeller [Nm]
 PARAM_DEFINE_FLOAT(SIH_Q_MAX, 0.1f);
 
-// arm length of the quad [m] 
-// (i.e. distance from one motor to the center of the quad)
-PARAM_DEFINE_FLOAT(SIH_ARM_LENGTH, 0.3f);
+// arm length generating the rolling moment [m] 
+// (i.e. distance from the left motors to the CM)
+PARAM_DEFINE_FLOAT(SIH_L_ROLL, 0.2f);
+
+// arm length generating the pitching moment [m] 
+// (i.e. the distance from the front motors to the CM)
+PARAM_DEFINE_FLOAT(SIH_L_PITCH, 0.2f);
 
 // First order drag coefficient [N/(m/s)]
 // Drag force function of velocity: D=-KDV*V 
