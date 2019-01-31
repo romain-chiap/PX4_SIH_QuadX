@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!--
+************************************************************************
+Quadrotor X shaped
+Coriolis g Corporation - Romain Chiappinelli - January 2019
+************************************************************************
+-->
+
+<PropertyList>
+
+  <sim>
+
+    <author>Romain CHIAPPINELLI</author>
+    <aircraft-version> 1 </aircraft-version>
+    <status>Alpha</status>
+	
+    <description>quad</description>
+    <flight-model>network</flight-model>
+
+	<model>
+	  <path>Aircraft/quad/Models/quad.xml</path>
+    </model>
+	
+	
+	<chase-distance-m type="double" archive="y">-5.00</chase-distance-m>
+	
+	<!--<systems>
+	  <electrical>
+	    <path>Aircraft/Generic/generic-electrical.xml</path>
+	  </electrical>
+	</systems>--> 
+	<!-- The following piece of code sets the default view as the chase view -->
+	<current-view>
+	  <view-number type="int">2</view-number>
+	</current-view>  
+  </sim>
+    
+</PropertyList>

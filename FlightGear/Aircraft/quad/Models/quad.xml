@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+************************************************************************
+	Flight Gear 2016.3 config file for quad network simulation
+	Coriolis g Corporation - Romain Chiappinelli - January 2019
+************************************************************************
+-->
+
+<PropertyList>
+
+ <path>quad.ac</path>
+ 
+ <animation>
+   <!-- opaque objects-->
+   <object-name>body</object-name> 
+ </animation>
+ 
+</PropertyList>
+
