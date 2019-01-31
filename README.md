@@ -15,6 +15,6 @@ Coriolis g Corporation is a Canadian company specialized in Vertical Takeoff and
 The company is focusing on devloping a new type of VTOL aircraft using a passive coupling system.
 We are specialized in dynamics and control and real time simulation.
 
-Discover our current platform at www.vogi-vtol.
+Discover our current platform at www.vogi-vtol.com
 
 
