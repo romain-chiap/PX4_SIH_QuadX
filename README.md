@@ -1,7 +1,7 @@
 # PX4_SIH_QuadX
 Simulator in Hardware for PX4 Quadrotor X by Coriolis g Coporation
 
-![Simulator in Hardware diagram](https://github.com/romain-chiap/PX4_SIH_QuadX/blob/master/Documentation/SIH_diagram.png)
+![Simulator in Hardware diagram](https://github.com/romain-chiap/PX4_SIH_QuadX/blob/master/Documentation/img/SIH_diagram.png)
 
 The Simulator in Hardware (SIH) is an alternative to the [Hardware In The Loop (HIL) simulation](https://dev.px4.io/en/simulation/hitl.html) provided by PX4. In this setup, the controller, the state estimator, and the simulator are running on the embedded hardware. Basically, everything is running on the embedded hardware.
 
