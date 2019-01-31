@@ -5,9 +5,11 @@ The Simulator in Hardware (SIH) is an alternative to the [Hardware In The Loop (
 
 The SIH provides two benefits:
 - It ensures real time simulation by avoiding the bidirectionnal connection to the computer. It means the user does not have to worry about having an expensive/real time desktop computer.
-- It provides the code in C++ to developers and researchers willing to incorporate their own aerodynamics into the simulator.
+- It provides the code in C++ to developers and researchers willing to incorporate their own aerodynamics into the simulator. They can for instance modify the noise level of the sensors or even add a sensor to be simulated.
 
 The SIH can be used by new PX4 users to get familiar with PX4 and the different modes and features, and of course to learn to fly a quadrotor.
+
+For information on seting up the Coriolis SIH, visit the [wiki page](https://github.com/romain-chiap/PX4_SIH_QuadX/wiki)
 
 ## About us
 Coriolis g Corporation is a Canadian company specialized in Vertical Takeoff and Landing (VTOL) Unmanned Aerial Vehicles (UAV). 
