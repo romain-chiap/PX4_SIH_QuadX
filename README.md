@@ -8,6 +8,7 @@ The Simulator in Hardware (SIH) is an alternative to the [Hardware In The Loop (
 
 The SIH provides two benefits over the HITL:
 - It ensures synchronous timing by avoiding the bidirectionnal connection to the computer. It means the user does not have to worry about having an expensive or real time desktop computer. For comparison, the conventionnal HIL diagram is shown below.
+
 ![Conventional Hardware in the Loop](https://github.com/romain-chiap/PX4_SIH_QuadX/blob/master/Documentation/img/HIL_diagram.png)
 - It provides the code in C++ to developers and researchers willing to incorporate their own mathematical model into the simulator. They can for instance modify the aerodynamic model, or noise level of the sensors, or even add a sensor to be simulated.
 
