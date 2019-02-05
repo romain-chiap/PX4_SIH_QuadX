@@ -81,8 +81,10 @@ public:
 
 	static float generate_wgn(); 	// generate white Gaussian noise sample
 
-	static Vector3f noiseGauss3f(float stdx,float stdy, float stdz); 	// generate white Gaussian noise sample with specified std
+		// generate white Gaussian noise sample as a 3D vector with specified std
+	static Vector3f noiseGauss3f(float stdx,float stdy, float stdz); 	
 
+	// static int pack_float(char* uart_msg, int index, void *value); 	// pack a float to a IEEE754 
 private:
 
 	/**
@@ -96,28 +98,29 @@ private:
 	uint8_t is_HIL_running(int vehicle_status_sub);
 
 	// to publish the simulator states
-	struct sih_s 					sih{};
-	orb_advert_t    				sih_pub{nullptr}; 
+	struct sih_s 					_sih{};
+	orb_advert_t    				_sih_pub{nullptr}; 
 	// to publish the sensor baro
-	struct sensor_baro_s 			sensor_baro{};
-	orb_advert_t    				sensor_baro_pub{nullptr}; 	
+	struct sensor_baro_s 			_sensor_baro{};
+	orb_advert_t    				_sensor_baro_pub{nullptr}; 	
 	// to publish the sensor mag
-	struct sensor_mag_s 			sensor_mag{};
-	orb_advert_t    				sensor_mag_pub{nullptr}; 		
+	struct sensor_mag_s 			_sensor_mag{};
+	orb_advert_t    				_sensor_mag_pub{nullptr}; 		
 	// to publish the sensor gyroscope
-	struct sensor_gyro_s 			sensor_gyro{};
-	orb_advert_t    				sensor_gyro_pub{nullptr}; 	
+	struct sensor_gyro_s 			_sensor_gyro{};
+	orb_advert_t    				_sensor_gyro_pub{nullptr}; 	
 	// to publish the sensor accelerometer
-	struct sensor_accel_s 			sensor_accel{};
-	orb_advert_t    				sensor_accel_pub{nullptr}; 
+	struct sensor_accel_s 			_sensor_accel{};
+	orb_advert_t    				_sensor_accel_pub{nullptr}; 
 	// to publish the gps position
-	struct vehicle_gps_position_s 	vehicle_gps_pos{};
-	orb_advert_t 					vehicle_gps_pos_pub{nullptr};
+	struct vehicle_gps_position_s 	_vehicle_gps_pos{};
+	orb_advert_t 					_vehicle_gps_pos_pub{nullptr};
 
 	// hard constants
-	static constexpr uint16_t NB_MOTORS=4;
-	static constexpr float T1 = 15.0f - CONSTANTS_ABSOLUTE_NULL_CELSIUS;	// ground temperature in Kelvin
-	static constexpr float a  = -6.5f / 1000.0f;	// temperature gradient in degrees per metre 
+	static constexpr uint16_t _NB_MOTORS=4;
+	static constexpr float _T1_C = 15.0f; 						// ground temperature in celcius
+	static constexpr float _T1_K = _T1_C - CONSTANTS_ABSOLUTE_NULL_CELSIUS;	// ground temperature in Kelvin
+	static constexpr float _TEMP_GRADIENT  = -6.5f / 1000.0f;	// temperature gradient in degrees per metre 
 
 	void init_variables();
 	void init_sensors();
@@ -131,38 +134,39 @@ private:
 	void publish_sih(); 
 	void send_serial_msg(int serial_fd, int64_t t_ms);
 
-	float dt;
+	float  		_dt; 			// sampling time [s]
 
-	Vector3f T_B; 		// thrust force in body frame [N]
-	Vector3f Fa_I; 		// aerodynamic force in inertial frame [N]
-	Vector3f Mt_B; 		// thruster moments in the body frame [Nm]
-	Vector3f Ma_B; 		// aerodynamic moments in the body frame [Nm]
-	Vector3f p_I; 		// inertial position [m]
-	Vector3f v_I; 		// inertial velocity [m/s]
-	Vector3f v_B; 		// body frame velocity [m/s]	
-	Vector3f p_I_dot; 	// inertial position differential
-	Vector3f v_I_dot; 	// inertial velocity differential
-	Quatf q; 			// quaternion attitude
-	Dcmf C_IB; 			// body to inertial transformation 
-	Vector3f w_B; 		// body rates in body frame [rad/s]
-	Quatf q_dot;		// quaternion differential
-	Vector3f w_B_dot; 	// body rates differential
-	float u[NB_MOTORS];	// thruster signals
+	Vector3f 	_T_B; 			// thrust force in body frame [N]
+	Vector3f 	_Fa_I; 			// aerodynamic force in inertial frame [N]
+	Vector3f 	_Mt_B; 			// thruster moments in the body frame [Nm]
+	Vector3f 	_Ma_B; 			// aerodynamic moments in the body frame [Nm]
+	Vector3f 	_p_I; 			// inertial position [m]
+	Vector3f 	_v_I; 			// inertial velocity [m/s]
+	Vector3f 	_v_B; 			// body frame velocity [m/s]	
+	Vector3f 	_p_I_dot; 		// inertial position differential
+	Vector3f 	_v_I_dot; 		// inertial velocity differential
+	Quatf 		_q; 			// quaternion attitude
+	Dcmf 		_C_IB; 			// body to inertial transformation 
+	Vector3f 	_w_B; 			// body rates in body frame [rad/s]
+	Quatf 		_q_dot;			// quaternion differential
+	Vector3f 	_w_B_dot; 		// body rates differential
+	float 		_u[_NB_MOTORS];	// thruster signals
 
 
 	// sensors reconstruction
-	Vector3f acc;
-	Vector3f mag;
-	Vector3f gyro;	
-	Vector3f gps_vel;
-	double gps_lat,gps_lon;
-	float gps_alt;	
-	float baro_p_mBar; 						// reconstructed pressure in mBar
-	float baro_temp_c; 						// reconstructed barometer temperature in celcius
+	Vector3f 	_acc;
+	Vector3f 	_mag;
+	Vector3f 	_gyro;	
+	Vector3f 	_gps_vel;
+	double 		_gps_lat, _gps_lat_noiseless;
+	double 		_gps_lon, _gps_lon_noiseless;
+	float 		_gps_alt, _gps_alt_noiseless;	
+	float 		_baro_p_mBar; 	// reconstructed (simulated) pressure in mBar
+	float 		_baro_temp_c; 	// reconstructed (simulated) barometer temperature in celcius
 
 	// parameters
-	float MASS, T_MAX, Q_MAX, L_ROLL, L_PITCH, KDV, KDW, H0;
-	double LAT0, LON0, COS_LAT0;
+	float _MASS, _T_MAX, _Q_MAX, _L_ROLL, _L_PITCH, _KDV, _KDW, _H0;
+	double _LAT0, _LON0, _COS_LAT0;
 	Vector3f _W_I; 	// weight of the vehicle in inertial frame [N]	
 	Matrix3f _I; 	// vehicle inertia matrix
 	Matrix3f _Im1; 	// inverse of the intertia matrix
