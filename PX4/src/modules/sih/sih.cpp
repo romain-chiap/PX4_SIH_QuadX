@@ -34,7 +34,7 @@
 /**
  * @file sih.cpp
  * Simulator in Hardware
- * 
+ *
  * @author Romain Chiappinelli		<romain.chiap@gmail.com>
  *
  * Coriolis g Corporation - January 2019
@@ -202,7 +202,7 @@ void Sih::run()
 	init_variables();
  	init_sensors();	
 	// on the AUAVX21: "/dev/ttyS2/" is TELEM2 UART3 --- "/dev/ttyS5/" is Debug UART7 --- "/dev/ttyS4/" is OSD UART8
-	int serial_fd=init_serial_port("/dev/ttyS5/", 57600); 	 	// init and open the serial port
+	int serial_fd=init_serial_port(); 	 	// init and open the serial port
 
 	const hrt_abstime task_start = hrt_absolute_time();
 	hrt_abstime last_run = task_start;
@@ -341,18 +341,18 @@ void Sih::init_sensors()
 	_sensor_accel.device_id=1;
 	_sensor_accel.error_count=0;		
 	_sensor_accel.integral_dt=0;
-	_sensor_accel.temperature=_T1_C;
+	_sensor_accel.temperature=T1_C;
 	_sensor_accel.scaling=0.0f;
 
 	_sensor_gyro.device_id=1;
 	_sensor_gyro.error_count=0;		
 	_sensor_gyro.integral_dt=0;
-	_sensor_gyro.temperature=_T1_C;
+	_sensor_gyro.temperature=T1_C;
 	_sensor_gyro.scaling=0.0f;
 
 	_sensor_mag.device_id=1;
 	_sensor_mag.error_count=0;		
-	_sensor_mag.temperature=_T1_C;
+	_sensor_mag.temperature=T1_C;
 	_sensor_mag.scaling=0.0f;		
 	_sensor_mag.is_external=false;
 
@@ -363,7 +363,7 @@ void Sih::init_sensors()
 	_vehicle_gps_pos.satellites_used=8;
 	_vehicle_gps_pos.heading=NAN;
 	_vehicle_gps_pos.heading_offset=NAN;
-	_vehicle_gps_pos.s_variance_m_s = 0.08f;
+	_vehicle_gps_pos.s_variance_m_s = 0.5f;
 	_vehicle_gps_pos.c_variance_rad = 0.1f;
 	_vehicle_gps_pos.eph = 0.9f;
 	_vehicle_gps_pos.epv = 1.78f; 
@@ -371,20 +371,21 @@ void Sih::init_sensors()
 	_vehicle_gps_pos.vdop = 1.1f;	
 }
 
-int Sih::init_serial_port(const char uart_name[20], uint32_t speed)
+int Sih::init_serial_port()
 {
 	struct termios uart_config;
-	int serial_fd = open(uart_name, O_WRONLY | O_NONBLOCK | O_NOCTTY);
+	int serial_fd = open(_uart_name, O_WRONLY | O_NONBLOCK | O_NOCTTY);
+
 	if (serial_fd < 0) {
-		PX4_ERR("failed to open port: %s", uart_name);
+		PX4_ERR("failed to open port: %s", _uart_name);
 	}
 
 	tcgetattr(serial_fd, &uart_config); // read configuration
 
 	uart_config.c_oflag |= ONLCR;
 	// try to set Bauds rate
-	if (cfsetispeed(&uart_config, speed) < 0 || cfsetospeed(&uart_config, speed) < 0) {
-		PX4_WARN("ERR SET BAUD %s\n", uart_name);
+	if (cfsetispeed(&uart_config, BAUDS_RATE) < 0 || cfsetospeed(&uart_config, BAUDS_RATE) < 0) {
+		PX4_WARN("ERR SET BAUD %s\n", _uart_name);
 		close(serial_fd);
 	}	
 
@@ -404,7 +405,7 @@ void Sih::read_motors(const int actuator_out_sub)
 
 	if (updated) {
 		orb_copy(ORB_ID(actuator_outputs), actuator_out_sub, &actuators_out);
-		for (int i=0; i<_NB_MOTORS; i++) 	// saturate the motor signals
+		for (int i=0; i<NB_MOTORS; i++) 	// saturate the motor signals
 			_u[i]=constrain((actuators_out.output[i]-PWM_DEFAULT_MIN)/(PWM_DEFAULT_MAX-PWM_DEFAULT_MIN),0.0f, 1.0f);
 	}
 }
@@ -467,8 +468,8 @@ void Sih::reconstruct_sensors_signals()
 	// barometer
 	float altitude=(_H0-_p_I(2))+generate_wgn()*0.14f; 	// altitude with noise
 	_baro_p_mBar=CONSTANTS_STD_PRESSURE_MBAR* 			//  reconstructed pressure in mBar
-			powf((1.0f+altitude*_TEMP_GRADIENT/_T1_K),-CONSTANTS_ONE_G/(_TEMP_GRADIENT*CONSTANTS_AIR_GAS_CONST)); 	
-	_baro_temp_c=_T1_K+CONSTANTS_ABSOLUTE_NULL_CELSIUS+_TEMP_GRADIENT*altitude; 	// reconstructed temperture in celcius
+			powf((1.0f+altitude*TEMP_GRADIENT/T1_K),-CONSTANTS_ONE_G/(TEMP_GRADIENT*CONSTANTS_AIR_GAS_CONST)); 	
+	_baro_temp_c=T1_K+CONSTANTS_ABSOLUTE_NULL_CELSIUS+TEMP_GRADIENT*altitude; 	// reconstructed temperture in celcius
 
 	// GPS
 	_gps_lat_noiseless=_LAT0+degrees((double)_p_I(0)/CONSTANTS_RADIUS_OF_EARTH);
@@ -604,7 +605,7 @@ void Sih::send_serial_msg(int serial_fd, int64_t t_ms)
 float Sih::generate_wgn() 	// generate white Gaussian noise sample with std=1
 {
 	float temp=((float)(rand()+1))/(((float)RAND_MAX+1.0f));
- 
+
 	return sqrtf(-2.0f*logf(temp))*cosf(2.0f*M_PI_F*rand()/RAND_MAX);	
 }
 
